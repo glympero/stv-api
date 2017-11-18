@@ -3,6 +3,7 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Postcode
@@ -25,6 +26,8 @@ class Postcode
      * @var string
      *
      * @ORM\Column(name="postcode", type="string", length=10, unique=true)
+     * @Assert\NotBlank()
+     * @Assert\Type("string")
      */
     private $postcode;
 
@@ -32,6 +35,8 @@ class Postcode
      * @var int
      *
      * @ORM\Column(name="eastings", type="integer")
+     * @Assert\NotBlank()
+     * @Assert\Type("integer")
      */
     private $eastings;
 
@@ -39,6 +44,8 @@ class Postcode
      * @var int
      *
      * @ORM\Column(name="northings", type="integer")
+     * @Assert\NotBlank()
+     *  @Assert\Type("integer")
      */
     private $northings;
 

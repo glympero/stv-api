@@ -26,6 +26,7 @@ class CsvImportCommand extends Command
         $this->em = $em;
     }
 
+
     protected function configure()
     {
         $this
@@ -33,22 +34,31 @@ class CsvImportCommand extends Command
             ->setDescription('Imports a csv file');
     }
 
+    /**
+     * Safe from SQL injection as objects inserted
+     * through Doctrine\ORM\EntityManager#persist()
+     * which uses prepared statements.
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
 
-        $io->title('Attempting to import all csv file...');
+        $io->title('Attempting to import all csv files...');
 
         $finder = new Finder();
+
         $finder->files()->in(__DIR__.'/Data');
+        $finder->files()->name('*.csv');
+        $finder->sortByName();
 
         foreach ($finder as $file) {
 
-                $reader = Reader::createFromPath('%kernel.root_dir%/../src/AppBundle/Data/'.$file->getRelativePathname());
+                $io->title('Importing: ' .$file->getRelativePathname());
 
-               // $reader = Reader::createFromPath();
+                $reader = Reader::createFromPath('%kernel.root_dir%/../src/AppBundle/Command/Data/'.$file->getRelativePathname());
 
                 $results = $reader->fetchAssoc([0, 1, 2, 3]);
+
 
                 $io->progressStart(iterator_count($results));
 
@@ -63,11 +73,12 @@ class CsvImportCommand extends Command
 
                     $io->progressAdvance();
                 }
-                $this->em->flush();
 
+                $this->em->flush();
+                $this->em->clear();
                 $io->progressFinish();
         }
 
-        $io->success('Import complete');
+        $io->success('All files imported successfully');
     }
 }

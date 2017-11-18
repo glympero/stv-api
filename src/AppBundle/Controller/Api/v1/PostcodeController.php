@@ -28,7 +28,7 @@ class PostcodeController extends BaseController
         $data = [
             'postcode' => $this->addWhiteSpaceToPostcode($postCode->getPostcode()),
             'eastings' => $postCode->getEastings(),
-            'northings' => $postCode->getNorthings()
+            'northings' => $postCode->getNorthings(),
         ];
 
         $response = $this->createApiResponse($data, 201);
@@ -55,7 +55,7 @@ class PostcodeController extends BaseController
                 $this->throw422();
             }
 
-            $result[] = ['postcode' => $value, 'distance' => $distanceCalculator->getDistanceFromPQ($pd->getEastings(), $pd->getNorthings())];
+            $result[] = ['postcode' => $this->addWhiteSpaceToPostcode($value), 'distance' => $distanceCalculator->getDistanceFromPQ($pd->getEastings(), $pd->getNorthings())];
         }
 
         //Order DESC
@@ -79,6 +79,10 @@ class PostcodeController extends BaseController
         }
     }
 
+    /**
+     * @param $string
+     * @return string
+     */
     private function addWhiteSpaceToPostcode($string)
     {
         $end = substr($string, -3);
@@ -86,11 +90,21 @@ class PostcodeController extends BaseController
         return $start. ' '. $end;
     }
 
+    /**
+     * @param $string
+     * @return mixed
+     */
     private function removeWhiteSpaceFromPostcode($string)
     {
         return preg_replace('/\s+/', '', $string);
     }
 
+    /**
+     * Safe from SQL injection
+     *
+     * @param $postcode
+     * @return \AppBundle\Entity\Postcode|null|object
+     */
     private function getPostcodeFromDB($postcode)
     {
         return $this->getDoctrine()
